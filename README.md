@@ -18,9 +18,19 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 
 ## Prerequisites
 
-1. **[Ollama](https://ollama.com)** — Install and ensure it's running:
+1. **[Ollama](https://ollama.com)** — Install it:
+
+   **macOS** — [Download Ollama.dmg](https://ollama.com/download) (requires macOS 14 Sonoma or later), then drag to Applications and launch.
+
+   **Linux** — Run the install script:
    ```bash
-   # Start Ollama (if not already running)
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+
+   **Windows** — [Download the installer](https://ollama.com/download) from the website.
+
+   Once installed, make sure Ollama is running:
+   ```bash
    ollama serve
    ```
 
