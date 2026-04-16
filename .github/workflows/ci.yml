@@ -8,27 +8,68 @@ on:
 
 jobs:
   smoke-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Ollama
+      - name: Setup Ollama (Linux)
+        if: runner.os == 'Linux'
         uses: ai-action/setup-ollama@v2
 
-      - name: Cache Ollama models
+      - name: Setup Ollama (macOS)
+        if: runner.os == 'macOS'
+        run: curl -fsSL https://ollama.com/install | sh
+
+      - name: Setup Ollama (Windows)
+        if: runner.os == 'Windows'
+        run: irm https://ollama.com/install.ps1 | iex
+        shell: pwsh
+
+      - name: Start Ollama server (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: |
+          ollama serve &
+          sleep 5
+        shell: bash
+
+      - name: Cache Ollama models (Linux / macOS)
+        if: runner.os != 'Windows'
         uses: actions/cache@v5
         with:
           path: ~/.ollama
-          key: ollama-moondream-1.8b
+          key: ${{ runner.os }}-ollama-moondream-1.8b
+
+      - name: Cache Ollama models (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v5
+        with:
+          path: ~\AppData\Local\Ollama
+          key: ${{ runner.os }}-ollama-moondream-1.8b
 
       - name: Pull vision model
         run: ollama pull moondream:1.8b
 
-      - name: Make scripts executable
+      - name: Make scripts executable (non-Windows)
+        if: runner.os != 'Windows'
         run: chmod +x skills/image-comprehension-ollama/scripts/comprehend_image.sh
 
-      - name: Python syntax check
+      - name: Python syntax check (Linux / macOS)
+        if: runner.os != 'Windows'
         run: python3 -m py_compile skills/image-comprehension-ollama/scripts/comprehend_image.py
 
-      - name: Smoke test
+      - name: Python syntax check (Windows)
+        if: runner.os == 'Windows'
+        run: python -m py_compile skills/image-comprehension-ollama/scripts/comprehend_image.py
+
+      - name: Smoke test (Linux / macOS)
+        if: runner.os != 'Windows'
         run: ./skills/image-comprehension-ollama/scripts/comprehend_image.sh --test --model moondream:1.8b
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        run: python skills/image-comprehension-ollama/scripts/comprehend_image.py --test --model moondream:1.8b
