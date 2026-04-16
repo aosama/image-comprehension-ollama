@@ -11,6 +11,17 @@ Give your coding agent eyes. This skill lets AI agents that can't natively see i
 
 When an agent encounters a screenshot, chart, diagram, photo, or any image file, it calls this skill to get a detailed text description of the image contents. Everything runs locally — no API keys, no cloud services, no data leaving your machine.
 
+### Supported vision models
+
+| Model | Size | Quality | Notes |
+|-------|------|---------|-------|
+| `moondream:1.8b` | **1.6 GB** | Good | **Default.** Tiny, works on CPU |
+| `minicpm-v:2.6` | **2.5 GB** | Very good | Better accuracy, still lightweight |
+| `llava:7b` | **4.7 GB** | Strong | High-quality descriptions, needs GPU for speed |
+| `gemma4:e2b` | **7.2 GB** | Excellent | Best quality for those with disk space and GPU |
+
+Use `--model` or `OLLAMA_VISION_MODEL` to switch.
+
 ## Features
 
 - 🔒 **Fully local** — uses Ollama, no API keys or cloud services needed
