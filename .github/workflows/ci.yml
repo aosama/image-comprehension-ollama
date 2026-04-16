@@ -23,19 +23,30 @@ jobs:
 
       - name: Setup Ollama (macOS)
         if: runner.os == 'macOS'
-        run: curl -fsSL https://ollama.com/install | sh
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
 
       - name: Setup Ollama (Windows)
         if: runner.os == 'Windows'
-        run: irm https://ollama.com/install.ps1 | iex
+        run: |
+          irm https://ollama.com/install.ps1 | iex
+          "$env:LOCALAPPDATA\Programs\Ollama" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
         shell: pwsh
 
       - name: Start Ollama server (macOS / Windows)
         if: runner.os != 'Linux'
-        run: |
-          ollama serve &
-          sleep 5
         shell: bash
+        run: |
+          ollama serve &disown
+          for i in $(seq 1 30); do
+            if curl -s http://127.0.0.1:11434/api/tags > /dev/null 2>&1; then
+              echo "Ollama server is ready"
+              break
+            fi
+            echo "Waiting for Ollama server... ($i/30)"
+            sleep 2
+          done
 
       - name: Cache Ollama models (Linux / macOS)
         if: runner.os != 'Windows'
