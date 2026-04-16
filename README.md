@@ -3,6 +3,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ollama](https://img.shields.io/badge/Ollama-required-blue.svg)](https://ollama.com)
 
+<p align="center">
+  <img src="docs/hero.png" alt="A luminous mechanical eye observing scattered photographs — giving AI agents vision" width="720">
+</p>
+
 Give your coding agent eyes. This skill lets AI agents that can't natively see images understand them by running a local Ollama vision model.
 
 When an agent encounters a screenshot, chart, diagram, photo, or any image file, it calls this skill to get a detailed text description of the image contents. Everything runs locally — no API keys, no cloud services, no data leaving your machine.
@@ -20,12 +24,17 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 
 ```
 image-comprehension-ollama/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                     # Cross-platform CI (Linux, macOS, Windows)
 ├── .gitignore
 ├── AGENTS.md                          # Guidelines for AI agents
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
 ├── VERSIONS.md                        # Version tracking
+├── docs/
+│   └── hero.png                       # Hero image
 └── skills/
     └── image-comprehension-ollama/    # Skill directory (matches frontmatter name)
         ├── SKILL.md                  # Skill instructions and metadata
