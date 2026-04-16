@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ollama
+        uses: ai-action/setup-ollama@v2
+
+      - name: Cache Ollama models
+        uses: actions/cache@v5
+        with:
+          path: ~/.ollama
+          key: ollama-moondream-1.8b
+
+      - name: Pull vision model
+        run: ollama pull moondream:1.8b
+
+      - name: Make scripts executable
+        run: chmod +x skills/image-comprehension-ollama/scripts/comprehend_image.sh
+
+      - name: Python syntax check
+        run: python3 -m py_compile skills/image-comprehension-ollama/scripts/comprehend_image.py
+
+      - name: Smoke test
+        run: ./skills/image-comprehension-ollama/scripts/comprehend_image.sh --test --model moondream:1.8b
