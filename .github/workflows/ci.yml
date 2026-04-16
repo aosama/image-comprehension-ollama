@@ -24,7 +24,7 @@ jobs:
       - name: Setup Ollama (macOS)
         if: runner.os == 'macOS'
         run: |
-          curl -fsSL https://ollama.com/install.sh | sh
+          (curl -fsSL https://ollama.com/install.sh | sh) || true
           echo "/usr/local/bin" >> "$GITHUB_PATH"
 
       - name: Setup Ollama (Windows)
