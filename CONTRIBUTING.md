@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This project aims to stay simple an
 
 1. **Fork and clone** the repository
 2. Ensure [Ollama](https://ollama.com) is installed and `ollama serve` is running
-3. Pull the default model: `ollama pull gemma4:e2b`
+3. Pull the default model: `ollama pull moondream:1.8b`
 4. Ensure `python3` is on your PATH (the scripts use only the standard library)
 
 ## Making changes

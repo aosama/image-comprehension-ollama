@@ -19,7 +19,7 @@ import urllib.error
 from pathlib import Path
 from typing import Never
 
-DEFAULT_MODEL_NAME = "gemma4:e2b"
+DEFAULT_MODEL_NAME = "moondream:1.8b"
 DEFAULT_PROMPT = "Describe this image in detail"
 DEFAULT_OLLAMA_HOST = "127.0.0.1:11434"
 OLLAMA_COMMAND_TIMEOUT_SECONDS = 180

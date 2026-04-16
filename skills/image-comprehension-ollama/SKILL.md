@@ -1,6 +1,6 @@
 ---
 name: image-comprehension-ollama
-description: "You cannot see images — this skill gives you vision. When you encounter an image file (screenshot, photo, diagram, chart, scan), use this skill to understand what is in it. A local vision model (default: gemma4:e2b via Ollama) describes the image back to you in text, so you can act on visual information you otherwise could not perceive. Supports PNG, JPEG, GIF, WebP, BMP."
+description: "You cannot see images — this skill gives you vision. When you encounter an image file (screenshot, photo, diagram, chart, scan), use this skill to understand what is in it. A local vision model (default: moondream:1.8b via Ollama) describes the image back to you in text, so you can act on visual information you otherwise could not perceive. Supports PNG, JPEG, GIF, WebP, BMP."
 license: MIT
 compatibility: Requires Ollama and Python 3
 metadata:
@@ -29,11 +29,20 @@ Use this skill proactively whenever visual information is relevant to your task 
 
 - [Ollama](https://ollama.com) installed and running on your machine.
 - `python3` available on your PATH. No virtual environment is required.
-- A vision model pulled locally. By default the skill uses `gemma4:e2b`. Run once manually:
+- A vision model pulled locally. By default the skill uses `moondream:1.8b` (tiny, ~1.6 GB, works on CPU). Run once manually:
   ```bash
-  ollama pull gemma4:e2b
+  ollama pull moondream:1.8b
   ```
   To use a different model, set the `OLLAMA_VISION_MODEL` environment variable or pass `--model`.
+
+### Recommended models
+
+| Model | Size | Quality | Best for |
+|-------|------|---------|----------|
+| `moondream:1.8b` | ~1.6 GB | Good | **Default.** Tiny, works on CPU, fast downloads |
+| `minicpm-v:2.6` | ~2.5 GB | Very good | Better accuracy, still lightweight |
+| `llava:7b` | ~4.7 GB | Strong | High-quality descriptions, needs GPU for speed |
+| `gemma4:e2b` | ~7.2 GB | Excellent | Best quality for those with disk space and GPU |
 
 ## Resolve the skill path first
 
@@ -101,10 +110,10 @@ OLLAMA_VISION_MODEL=llava:7b "$HOME/.agents/skills/image-comprehension-ollama/sc
 
 | Setting | CLI flag | Environment variable | Default |
 |---------|----------|---------------------|---------|
-| Vision model | `--model` | `OLLAMA_VISION_MODEL` | `gemma4:e2b` |
+| Vision model | `--model` | `OLLAMA_VISION_MODEL` | `moondream:1.8b` |
 | Timeout | — | `COMPREHEND_IMAGE_TIMEOUT_SECONDS` | `180` |
 
-- **Model**: Pass `--model <name>` on the command line, or set `OLLAMA_VISION_MODEL` in your environment. The CLI flag takes precedence. If neither is set, `gemma4:e2b` is used.
+- **Model**: Pass `--model <name>` on the command line, or set `OLLAMA_VISION_MODEL` in your environment. The CLI flag takes precedence. If neither is set, `moondream:1.8b` is used.
 - **Timeout**: Set `COMPREHEND_IMAGE_TIMEOUT_SECONDS` to change the shell wrapper timeout (default 180 seconds). The inner Python script also enforces this as its maximum wait time for API calls.
 
 ## Timing
@@ -120,7 +129,7 @@ Progress logs are printed to stderr during comprehension so coding agents can se
 
 - `--image <path>` — Path to the image file to analyze (required, unless using `--test`).
 - `--prompt <text>` — Custom prompt/question for the image (default: "Describe this image in detail").
-- `--model <name>` — Ollama model to use (default: `gemma4:e2b`, override with `OLLAMA_VISION_MODEL` env var).
+- `--model <name>` — Ollama model to use (default: `moondream:1.8b`, override with `OLLAMA_VISION_MODEL` env var).
 - `--test` — Run the built-in smoke test.
 - `--help` — Show the help text.
 

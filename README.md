@@ -16,7 +16,7 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 - 🔒 **Fully local** — uses Ollama, no API keys or cloud services needed
 - 🖼️ **Multi-format** — supports PNG, JPEG, GIF, WebP, BMP
 - ⚡ **On-demand loading** — model loads when needed, unloads after to free memory
-- 🔧 **Configurable model** — use any Ollama vision model, defaults to `gemma4:e2b`
+- 🔧 **Configurable model** — use any Ollama vision model, defaults to `moondream:1.8b`
 - 📝 **Custom prompts** — ask specific questions about images, not just "describe it"
 - 🔁 **Auto-start Ollama** — automatically starts a local Ollama server if one isn't running (macOS app bundle and Linux PATH supported)
 
@@ -67,8 +67,10 @@ This follows the [Agent Skills specification](https://agentskills.io/specificati
 
 3. **A vision model** — Pull the default model (or whichever you prefer):
    ```bash
-   ollama pull gemma4:e2b
+   ollama pull moondream:1.8b
    ```
+   
+   Other options: `minicpm-v:2.6` (~2.5 GB, better accuracy) · `llava:7b` (~4.7 GB, strong quality) · `gemma4:e2b` (~7.2 GB, excellent).
 
 ## Installation
 
@@ -130,7 +132,7 @@ OLLAMA_VISION_MODEL=llava:7b ./skills/image-comprehension-ollama/scripts/compreh
 
 | Setting | CLI flag | Environment variable | Default |
 |---------|----------|---------------------|---------|
-| Vision model | `--model` | `OLLAMA_VISION_MODEL` | `gemma4:e2b` |
+| Vision model | `--model` | `OLLAMA_VISION_MODEL` | `moondream:1.8b` |
 | Timeout | — | `COMPREHEND_IMAGE_TIMEOUT_SECONDS` | `180` |
 
 ### Using a different model
@@ -145,7 +147,7 @@ ollama pull llava:7b
 ./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image photo.png --model llava:7b
 ```
 
-The `--model` flag takes precedence over `OLLAMA_VISION_MODEL`. If neither is set, `gemma4:e2b` is used.
+The `--model` flag takes precedence over `OLLAMA_VISION_MODEL`. If neither is set, `moondream:1.8b` is used.
 
 ## Output
 
