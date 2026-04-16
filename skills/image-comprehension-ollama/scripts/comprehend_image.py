@@ -415,16 +415,16 @@ def comprehend_image_via_api(image_path: Path, prompt: str, model_name: str) -> 
         fail(f"Failed to parse API response: {e}")
 
 
-def run_smoke_test() -> None:
-    model_name = resolve_model_name()
+def run_smoke_test(model_name: str | None = None) -> None:
+    model = model_name or resolve_model_name()
     log("Running smoke test...")
     ensure_ollama_ready()
-    ensure_model_present(model_name)
+    ensure_model_present(model)
 
     test_image = create_test_image()
     try:
         description = comprehend_image_via_api(
-            test_image, "What do you see in this image?", model_name
+            test_image, "What do you see in this image?", model
         )
         log(
             f"Smoke test succeeded. Description ({len(description)} chars): {description[:100]}..."
@@ -439,7 +439,7 @@ def main(argv: list[str]) -> int:
     model_name = args.model or resolve_model_name()
 
     if args.test:
-        run_smoke_test()
+        run_smoke_test(args.model)
         return 0
 
     if not args.image:
