@@ -16,6 +16,26 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 - 📝 **Custom prompts** — ask specific questions about images, not just "describe it"
 - 🔁 **Auto-start Ollama** — automatically starts a local Ollama server if one isn't running (macOS app bundle and Linux PATH supported)
 
+## Repository structure
+
+```
+image-comprehension-ollama/
+├── .gitignore
+├── AGENTS.md                          # Guidelines for AI agents
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── VERSIONS.md                        # Version tracking
+└── skills/
+    └── image-comprehension-ollama/    # Skill directory (matches frontmatter name)
+        ├── SKILL.md                  # Skill instructions and metadata
+        └── scripts/
+            ├── comprehend_image.py    # Core Python script
+            └── comprehend_image.sh   # Shell wrapper with timeout
+```
+
+This follows the [Agent Skills specification](https://agentskills.io/specification.md).
+
 ## Prerequisites
 
 1. **[Ollama](https://ollama.com)** — Install it:
@@ -43,7 +63,15 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 
 ## Installation
 
-### Quick install (clone + symlink)
+### Option 1: `npx skills add` (recommended)
+
+```bash
+npx skills add aosama/image-comprehension-ollama
+```
+
+This installs the skill to `.agents/skills/` following the [Agent Skills spec](https://agentskills.io).
+
+### Option 2: Clone + symlink
 
 ```bash
 # Clone the repo
@@ -51,42 +79,42 @@ git clone https://github.com/aosama/image-comprehension-ollama.git
 
 # Symlink to the standard skill location
 mkdir -p "$HOME/.agents/skills"
-ln -s "$(pwd)/image-comprehension-ollama" "$HOME/.agents/skills/image-comprehension-ollama"
+ln -s "$(pwd)/image-comprehension-ollama/skills/image-comprehension-ollama" "$HOME/.agents/skills/image-comprehension-ollama"
 ```
 
-### Alternative: manual path
+### Option 3: Manual path
 
 If you prefer not to use the symlink, just clone the repo and call the script by its full path:
 
 ```bash
 git clone https://github.com/aosama/image-comprehension-ollama.git
 cd image-comprehension-ollama
-./scripts/comprehend_image.sh --image /path/to/image.png
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image /path/to/image.png
 ```
 
 ## Usage
 
 ```bash
 # Basic usage — describe an image
-./scripts/comprehend_image.sh --image screenshot.png
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image screenshot.png
 
 # Ask a specific question about an image
-./scripts/comprehend_image.sh --image chart.png --prompt "What are the key trends in this chart?"
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image chart.png --prompt "What are the key trends in this chart?"
 
 # Extract text from an image
-./scripts/comprehend_image.sh --image receipt.jpg --prompt "Extract and transcribe all visible text."
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image receipt.jpg --prompt "Extract and transcribe all visible text."
 
 # Use a different model
-./scripts/comprehend_image.sh --image photo.png --model llava:7b
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image photo.png --model llava:7b
 
 # Or set model via environment variable
-OLLAMA_VISION_MODEL=llava:7b ./scripts/comprehend_image.sh --image photo.png
+OLLAMA_VISION_MODEL=llava:7b ./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image photo.png
 
 # Run the built-in smoke test
-./scripts/comprehend_image.sh --test
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --test
 
 # Show help
-./scripts/comprehend_image.sh --help
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --help
 ```
 
 ## Configuration
@@ -105,7 +133,7 @@ Any Ollama vision model works. Popular options:
 ollama pull llava:7b
 
 # Use it
-./scripts/comprehend_image.sh --image photo.png --model llava:7b
+./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image photo.png --model llava:7b
 ```
 
 The `--model` flag takes precedence over `OLLAMA_VISION_MODEL`. If neither is set, `gemma4:e2b` is used.
@@ -117,7 +145,7 @@ The `--model` flag takes precedence over `OLLAMA_VISION_MODEL`. If neither is se
 
 ```bash
 # Capture only the description
-description=$(./scripts/comprehend_image.sh --image photo.png 2>/dev/null)
+description=$(./skills/image-comprehension-ollama/scripts/comprehend_image.sh --image photo.png 2>/dev/null)
 ```
 
 ## How it works

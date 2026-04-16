@@ -1,6 +1,11 @@
 ---
 name: image-comprehension-ollama
 description: "You cannot see images — this skill gives you vision. When you encounter an image file (screenshot, photo, diagram, chart, scan), use this skill to understand what is in it. A local vision model (default: gemma4:e2b via Ollama) describes the image back to you in text, so you can act on visual information you otherwise could not perceive. Supports PNG, JPEG, GIF, WebP, BMP."
+license: MIT
+compatibility: Requires Ollama and Python 3
+metadata:
+  author: aosama
+  version: "1.0.0"
 ---
 
 # Image Comprehension with Ollama
