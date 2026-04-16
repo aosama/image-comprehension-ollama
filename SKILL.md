@@ -137,10 +137,11 @@ description=$("$HOME/.agents/skills/image-comprehension-ollama/scripts/comprehen
 
 1. `comprehend_image.sh` forwards all arguments to `comprehend_image.py` using your existing `python3`.
 2. The Python script validates the image path exists.
-3. It checks that Ollama is running and the model is installed.
-4. It encodes the image as base64 and sends a POST request to `http://localhost:11434/api/generate` with `keep_alive: "0"`.
-5. The description is printed to stdout.
-6. The `keep_alive: "0"` parameter unloads the model immediately after processing, freeing GPU/CPU memory.
+3. If Ollama isn't already running, it attempts to auto-start `ollama serve` (on macOS it uses the app bundle; on Linux it uses `ollama` from PATH).
+4. It checks that the requested model is installed.
+5. It encodes the image as base64 and sends a POST request to the Ollama API with `keep_alive: "0"`.
+6. The description is printed to stdout.
+7. The `keep_alive: "0"` parameter unloads the model immediately after processing, freeing GPU/CPU memory.
 
 If Ollama is not running or the model is not installed, the script prints a clear error to stderr and exits with a non-zero code. The agent should report the error to the user and suggest running `ollama serve` or `ollama pull <model>`.
 
@@ -180,4 +181,5 @@ If Ollama is not running or the model is not installed, the script prints a clea
 - No API key is required — everything runs locally via Ollama's HTTP API.
 - The Python code uses only the standard library.
 - Progress logs go to stderr, description goes to stdout — easy to capture programmatically.
-- On macOS, the script can automatically start a managed Ollama server if Ollama is installed via the Mac app but no server is running.
+- On Linux and other platforms, the script can auto-start `ollama serve` if Ollama isn't already running and `ollama` is on your PATH.
+- On macOS, the script can auto-start a managed Ollama server if Ollama is installed via the Mac app but no server is running.

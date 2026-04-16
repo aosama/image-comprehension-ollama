@@ -31,6 +31,8 @@ MAC_APP_OLLAMA_RESOURCES_DIR = Path("/Applications/Ollama.app/Contents/Resources
 
 _OLLAMA_ENV: dict[str, str] | None = None
 _MANAGED_OLLAMA_SERVER: subprocess.Popen[str] | None = None
+_MANAGED_OLLAMA_SERVER_CMD: list[str] | None = None
+_MAC_RESOURCES_DIR: Path | None = None
 
 
 def resolve_model_name() -> str:
@@ -77,21 +79,62 @@ def resolve_ollama_env() -> dict[str, str]:
         return _OLLAMA_ENV
 
     env = os.environ.copy()
-    resources_dir = find_ollama_app_resources_dir()
 
-    if resources_dir is not None and "OLLAMA_LIBRARY_PATH" not in env:
-        env["OLLAMA_LIBRARY_PATH"] = str(resources_dir)
-        log(f"Using Ollama app Resources for OLLAMA_LIBRARY_PATH: {resources_dir}")
+    # Check if Ollama is already reachable — if so, use it as-is.
+    if is_ollama_reachable(env):
+        log("Ollama is already running, using existing server.")
+        _OLLAMA_ENV = env
+        return _OLLAMA_ENV
 
-    if resources_dir is not None and "OLLAMA_HOST" not in env:
+    # Try to start a managed server. On macOS, this may use the app bundle;
+    # on Linux and other platforms, this uses ollama from PATH.
+    server_cmd = find_ollama_server_command()
+
+    if server_cmd is not None and "OLLAMA_HOST" not in env:
         env["OLLAMA_HOST"] = f"127.0.0.1:{find_available_local_port()}"
-        start_managed_ollama_server(resources_dir, env)
+        start_managed_ollama_server(server_cmd, env)
 
     _OLLAMA_ENV = env
     return _OLLAMA_ENV
 
 
+def is_ollama_reachable(env: dict[str, str]) -> bool:
+    """Check whether Ollama is already reachable at the configured host."""
+    host = env.get("OLLAMA_HOST", DEFAULT_OLLAMA_HOST)
+    url = f"http://{host}" if not host.startswith("http") else host
+    try:
+        request = urllib.request.Request(f"{url}/api/tags", method="GET")
+        with urllib.request.urlopen(request, timeout=3):
+            return True
+    except Exception:
+        return False
+
+
+def find_ollama_server_command() -> list[str] | None:
+    """Find the ollama server command for the current platform.
+
+    On macOS, prefer the app bundle binary (which needs OLLAMA_LIBRARY_PATH).
+    On Linux and other platforms, use ollama from PATH.
+    Returns None if ollama cannot be found.
+    """
+    if sys.platform == "darwin":
+        resources_dir = find_ollama_app_resources_dir()
+        if resources_dir is not None:
+            # Store resources_dir for OLLAMA_LIBRARY_PATH injection
+            global _MAC_RESOURCES_DIR
+            _MAC_RESOURCES_DIR = resources_dir
+            return [str(resources_dir / "ollama"), "serve"]
+
+    # On Linux and other platforms, or macOS without the app bundle
+    ollama_path = shutil.which("ollama")
+    if ollama_path is not None:
+        return [ollama_path, "serve"]
+
+    return None
+
+
 def find_ollama_app_resources_dir() -> Path | None:
+    """Find the Ollama app bundle Resources directory on macOS."""
     if sys.platform != "darwin":
         return None
 
@@ -115,18 +158,22 @@ def find_available_local_port() -> int:
         return int(sock.getsockname()[1])
 
 
-def start_managed_ollama_server(resources_dir: Path, env: dict[str, str]) -> None:
-    global _MANAGED_OLLAMA_SERVER
+def start_managed_ollama_server(command: list[str], env: dict[str, str]) -> None:
+    global _MANAGED_OLLAMA_SERVER, _MANAGED_OLLAMA_SERVER_CMD, _MAC_RESOURCES_DIR
 
     if _MANAGED_OLLAMA_SERVER is not None:
         return
 
-    log(
-        "Starting a dedicated Ollama server with the app bundle Resources path "
-        f"on {env['OLLAMA_HOST']}"
-    )
+    # macOS app bundle needs OLLAMA_LIBRARY_PATH set
+    if _MAC_RESOURCES_DIR is not None and "OLLAMA_LIBRARY_PATH" not in env:
+        env["OLLAMA_LIBRARY_PATH"] = str(_MAC_RESOURCES_DIR)
+        log(f"Using Ollama app Resources for OLLAMA_LIBRARY_PATH: {_MAC_RESOURCES_DIR}")
+
+    _MANAGED_OLLAMA_SERVER_CMD = command
+    command_text = format_command(command)
+    log(f"Starting a managed Ollama server on {env['OLLAMA_HOST']}: {command_text}")
     _MANAGED_OLLAMA_SERVER = subprocess.Popen(
-        [str(resources_dir / "ollama"), "serve"],
+        command,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         text=True,

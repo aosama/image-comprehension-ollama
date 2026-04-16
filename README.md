@@ -14,7 +14,7 @@ When an agent encounters a screenshot, chart, diagram, photo, or any image file,
 - ⚡ **On-demand loading** — model loads when needed, unloads after to free memory
 - 🔧 **Configurable model** — use any Ollama vision model, defaults to `gemma4:e2b`
 - 📝 **Custom prompts** — ask specific questions about images, not just "describe it"
-- 🍎 **macOS auto-start** — automatically starts a managed Ollama server from the Mac app
+- 🔁 **Auto-start Ollama** — automatically starts a local Ollama server if one isn't running (macOS app bundle and Linux PATH supported)
 
 ## Prerequisites
 
@@ -124,10 +124,11 @@ description=$(./scripts/comprehend_image.sh --image photo.png 2>/dev/null)
 
 1. `comprehend_image.sh` wraps `comprehend_image.py` with a configurable timeout
 2. The Python script validates the image exists and is a supported format
-3. It checks Ollama is running and the requested model is installed
-4. It base64-encodes the image and sends it to Ollama's HTTP API
-5. The model describes the image and the description is printed to stdout
-6. The model unloads immediately (`keep_alive: 0`) to free resources
+3. If Ollama isn't already running, it attempts to auto-start it (macOS app bundle or Linux `ollama` from PATH)
+4. It checks the requested model is installed
+5. It base64-encodes the image and sends it to Ollama's HTTP API
+6. The model describes the image and the description is printed to stdout
+7. The model unloads immediately (`keep_alive: 0`) to free resources
 
 ## Troubleshooting
 
