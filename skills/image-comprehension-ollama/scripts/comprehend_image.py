@@ -206,9 +206,53 @@ def ollama_api_url() -> str:
     return f"http://{host}"
 
 
+def normalize_image_path(raw_path: str) -> Path:
+    """Normalize a raw image path string into a resolved Path.
+
+    Handles Unicode normalization (e.g. macOS uses narrow no-break space
+    U+202F instead of regular space in filenames like screenshots) and
+    tilde expansion.
+    """
+    import unicodedata
+
+    expanded = unicodedata.normalize("NFC", os.path.expanduser(raw_path))
+    # Try the normalized path as-is first
+    candidate = Path(expanded).resolve()
+    if candidate.is_file():
+        return candidate
+
+    # If the exact path doesn't exist, try replacing common Unicode
+    # space look-alikes with a regular space and searching the parent dir
+    parent = candidate.parent
+    if parent.is_dir():
+        target_name = candidate.name
+        # Replace narrow no-break space (U+202F) and other Unicode spaces
+        normalized_name = unicodedata.normalize("NFKC", target_name)
+        if normalized_name != target_name:
+            alt_path = parent / normalized_name
+            if alt_path.is_file():
+                return alt_path.resolve()
+
+        # Fuzzy: try matching against actual directory entries by NFC-normalized name
+        normalized_compare = unicodedata.normalize("NFKC", target_name).casefold()
+        for entry in parent.iterdir():
+            if unicodedata.normalize("NFKC", entry.name).casefold() == normalized_compare:
+                return entry.resolve()
+
+    return candidate
+
+
 def validate_image_path(image_path: Path) -> None:
     if not image_path.is_file():
-        fail(f"Image file not found: {image_path}")
+        # Provide helpful message with parent directory listing if available
+        parent = image_path.parent
+        extra = ""
+        if parent.is_dir():
+            matches = list(parent.glob(f"{image_path.stem}*"))
+            if matches:
+                names = ", ".join(m.name for m in matches[:5])
+                extra = f" Similar files in {parent}: {names}"
+        fail(f"Image file not found: {image_path}.{extra}")
     if image_path.suffix.lower() not in SUPPORTED_IMAGE_EXTENSIONS:
         fail(
             f"Unsupported image format: {image_path.suffix}. "
@@ -445,7 +489,7 @@ def main(argv: list[str]) -> int:
     if not args.image:
         fail("No image path given. Use --image /path/to/image or --help.")
 
-    image_path = Path(args.image).expanduser().resolve()
+    image_path = normalize_image_path(args.image)
     prompt = args.prompt if args.prompt else DEFAULT_PROMPT
 
     ensure_ollama_ready()
