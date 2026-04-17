@@ -11,6 +11,12 @@ Give your coding agent eyes. This skill lets AI agents that can't natively see i
 
 When an agent encounters a screenshot, chart, diagram, photo, or any image file, it calls this skill to get a detailed text description of the image contents. Everything runs locally — no API keys, no cloud services, no data leaving your machine.
 
+## Install
+
+```bash
+npx skills add aosama/image-comprehension-ollama
+```
+
 ### Supported vision models
 
 | Model | Size | Quality | Notes |
