@@ -1,6 +1,6 @@
 ---
 name: image-comprehension-ollama
-description: "You cannot see images — this skill gives you vision. When you encounter an image file (screenshot, photo, diagram, chart, scan), use this skill to understand what is in it. A local vision model (default: moondream:1.8b via Ollama) describes the image back to you in text, so you can act on visual information you otherwise could not perceive. Supports PNG, JPEG, GIF, WebP, BMP."
+description: "Use this skill to analyze image files on disk via a local vision model (default: moondream:1.8b via Ollama). Invoke it whenever you encounter an image provided as a file path — such as a screenshot, photo, diagram, chart, or scan — and need a text description of its contents. The local model processes the image and returns a description to stdout, supplementing your workflow when images are not directly viewable in chat or when a local analysis is preferred. Supports PNG, JPEG, GIF, WebP, BMP."
 license: MIT
 compatibility: Requires Ollama and Python 3
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # Image Comprehension with Ollama
 
-**You are not a vision model. You cannot see images.** This skill bridges that gap.
+**Use this skill to analyze image files via a local vision model.** When an image is provided only as a file path, or when you want a local description of a screenshot, photo, diagram, or other visual artifact, invoke this skill. It runs a local vision model that returns a text description, allowing you to act on visual information even when images are not displayed directly in the conversation.
 
 When you encounter an image file — whether from a screenshot the user shared, a photo on disk, a rendered webpage capture, a chart, a diagram, or any other visual artifact — this skill lets you understand its contents. It runs a local vision model that analyzes the image and returns a text description to stdout. The model loads on demand, describes the image, and unloads immediately to free memory.
 

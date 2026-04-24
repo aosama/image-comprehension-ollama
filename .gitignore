@@ -24,3 +24,5 @@ venv/
 
 # Test artifacts
 comprehend-image-test-*
+/.agents/skills/
+/.agents/skills/*
