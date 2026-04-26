@@ -35,7 +35,7 @@ Use `--model` or `OLLAMA_VISION_MODEL` to switch.
 - ⚡ **On-demand loading** — model loads when needed, unloads after to free memory
 - 🔧 **Configurable model** — use any Ollama vision model, defaults to `moondream:1.8b`
 - 📝 **Custom prompts** — ask specific questions about images, not just "describe it"
-- 🔁 **Auto-start Ollama** — automatically starts a local Ollama server if one isn't running (macOS app bundle and Linux PATH supported)
+- 🔁 **Auto-start Ollama** — automatically starts `ollama serve` from PATH if Ollama isn't already running
 
 ## Repository structure
 
@@ -180,7 +180,7 @@ description=$(./skills/image-comprehension-ollama/scripts/comprehend_image.sh --
 
 1. `comprehend_image.sh` wraps `comprehend_image.py` with a configurable timeout
 2. The Python script validates the image exists and is a supported format
-3. If Ollama isn't already running, it attempts to auto-start it (macOS app bundle or Linux `ollama` from PATH)
+3. If Ollama isn't already running, it attempts to auto-start `ollama serve` from PATH
 4. It checks the requested model is installed
 5. It base64-encodes the image and sends it to Ollama's HTTP API
 6. The model describes the image and the description is printed to stdout

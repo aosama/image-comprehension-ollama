@@ -1,6 +1,6 @@
 ---
 name: image-comprehension-ollama
-description: "Use this skill to analyze image files on disk via a local vision model (default: moondream:1.8b via Ollama). Invoke it whenever you encounter an image provided as a file path — such as a screenshot, photo, diagram, chart, or scan — and need a text description of its contents. The local model processes the image and returns a description to stdout, supplementing your workflow when images are not directly viewable in chat or when a local analysis is preferred. Supports PNG, JPEG, GIF, WebP, BMP."
+description: "If you are a vision enabled model then you do not need this skill. Use this skill to analyze image files on disk via a local vision model (default: moondream:1.8b via Ollama). Invoke it whenever you encounter an image provided as a file path — such as a screenshot, photo, diagram, chart, or scan — and need a text description of its contents. The local model processes the image and returns a description to stdout, supplementing your workflow when images are not directly viewable in chat or when a local analysis is preferred. Supports PNG, JPEG, GIF, WebP, BMP."
 license: MIT
 compatibility: Requires Ollama and Python 3
 metadata:
@@ -151,7 +151,7 @@ description=$("$HOME/.agents/skills/image-comprehension-ollama/scripts/comprehen
 
 1. `comprehend_image.sh` forwards all arguments to `comprehend_image.py` using your existing `python3`.
 2. The Python script validates the image path exists.
-3. If Ollama isn't already running, it attempts to auto-start `ollama serve` (on macOS it uses the app bundle; on Linux it uses `ollama` from PATH).
+3. If Ollama isn't already running, it attempts to auto-start `ollama serve` from PATH.
 4. It checks that the requested model is installed.
 5. It encodes the image as base64 and sends a POST request to the Ollama API with `keep_alive: "0"`.
 6. The description is printed to stdout.
@@ -195,5 +195,4 @@ If Ollama is not running or the model is not installed, the script prints a clea
 - No API key is required — everything runs locally via Ollama's HTTP API.
 - The Python code uses only the standard library.
 - Progress logs go to stderr, description goes to stdout — easy to capture programmatically.
-- On Linux and other platforms, the script can auto-start `ollama serve` if Ollama isn't already running and `ollama` is on your PATH.
-- On macOS, the script can auto-start a managed Ollama server if Ollama is installed via the Mac app but no server is running.
+- If Ollama isn't already running, the script can auto-start `ollama serve` if `ollama` is on your PATH.

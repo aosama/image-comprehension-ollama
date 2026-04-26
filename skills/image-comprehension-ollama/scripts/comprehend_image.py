@@ -27,12 +27,9 @@ OLLAMA_READY_RETRY_COUNT = 15
 OLLAMA_READY_RETRY_DELAY_SECONDS = 1
 PROGRESS_LOG_INTERVAL_SECONDS = 5
 SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
-MAC_APP_OLLAMA_RESOURCES_DIR = Path("/Applications/Ollama.app/Contents/Resources")
-
 _OLLAMA_ENV: dict[str, str] | None = None
 _MANAGED_OLLAMA_SERVER: subprocess.Popen[str] | None = None
 _MANAGED_OLLAMA_SERVER_CMD: list[str] | None = None
-_MAC_RESOURCES_DIR: Path | None = None
 
 
 def resolve_model_name() -> str:
@@ -86,8 +83,7 @@ def resolve_ollama_env() -> dict[str, str]:
         _OLLAMA_ENV = env
         return _OLLAMA_ENV
 
-    # Try to start a managed server. On macOS, this may use the app bundle;
-    # on Linux and other platforms, this uses ollama from PATH.
+    # Try to start a managed server using ollama from PATH.
     server_cmd = find_ollama_server_command()
 
     if server_cmd is not None and "OLLAMA_HOST" not in env:
@@ -111,43 +107,13 @@ def is_ollama_reachable(env: dict[str, str]) -> bool:
 
 
 def find_ollama_server_command() -> list[str] | None:
-    """Find the ollama server command for the current platform.
+    """Find the ollama server command from PATH.
 
-    On macOS, prefer the app bundle binary (which needs OLLAMA_LIBRARY_PATH).
-    On Linux and other platforms, use ollama from PATH.
     Returns None if ollama cannot be found.
     """
-    if sys.platform == "darwin":
-        resources_dir = find_ollama_app_resources_dir()
-        if resources_dir is not None:
-            # Store resources_dir for OLLAMA_LIBRARY_PATH injection
-            global _MAC_RESOURCES_DIR
-            _MAC_RESOURCES_DIR = resources_dir
-            return [str(resources_dir / "ollama"), "serve"]
-
-    # On Linux and other platforms, or macOS without the app bundle
     ollama_path = shutil.which("ollama")
     if ollama_path is not None:
         return [ollama_path, "serve"]
-
-    return None
-
-
-def find_ollama_app_resources_dir() -> Path | None:
-    """Find the Ollama app bundle Resources directory on macOS."""
-    if sys.platform != "darwin":
-        return None
-
-    candidates: list[Path] = []
-    ollama_path = shutil.which("ollama")
-    if ollama_path:
-        resolved_ollama_path = Path(ollama_path).resolve()
-        candidates.append(resolved_ollama_path.parent)
-    candidates.append(MAC_APP_OLLAMA_RESOURCES_DIR)
-
-    for candidate in candidates:
-        if (candidate / "ollama").is_file() and any(candidate.glob("mlx_metal_v*")):
-            return candidate
 
     return None
 
@@ -159,15 +125,10 @@ def find_available_local_port() -> int:
 
 
 def start_managed_ollama_server(command: list[str], env: dict[str, str]) -> None:
-    global _MANAGED_OLLAMA_SERVER, _MANAGED_OLLAMA_SERVER_CMD, _MAC_RESOURCES_DIR
+    global _MANAGED_OLLAMA_SERVER, _MANAGED_OLLAMA_SERVER_CMD
 
     if _MANAGED_OLLAMA_SERVER is not None:
         return
-
-    # macOS app bundle needs OLLAMA_LIBRARY_PATH set
-    if _MAC_RESOURCES_DIR is not None and "OLLAMA_LIBRARY_PATH" not in env:
-        env["OLLAMA_LIBRARY_PATH"] = str(_MAC_RESOURCES_DIR)
-        log(f"Using Ollama app Resources for OLLAMA_LIBRARY_PATH: {_MAC_RESOURCES_DIR}")
 
     _MANAGED_OLLAMA_SERVER_CMD = command
     command_text = format_command(command)
