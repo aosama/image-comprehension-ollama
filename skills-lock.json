@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "image-comprehension-ollama": {
+      "source": "aosama/image-comprehension-ollama",
+      "sourceType": "github",
+      "computedHash": "003b1c0290075210aa93c30573c2311a6a700b604fcfc1a1c0a6110f4105386d"
+    }
+  }
+}
